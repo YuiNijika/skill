@@ -20,11 +20,11 @@ This skill is intentionally opinionated. It does not just repeat docs. It merges
 - Keep Linux production compatibility in mind.
 - Reuse the framework's existing Request / Response / Auth / Env / Config capabilities instead of inventing parallel logic.
 - Preserve the current REST response contract.
-- Use VitePress docs as source material, but normalize outdated examples to current production rules.
+- Use the copied Markdown docs inside this skill as the first reference.
 
 ## Docs Normalization
 
-Some VitePress examples still reflect older conventions. When code examples in docs conflict with current project rules, prefer the current rules below.
+Some copied source docs still reflect older conventions. When code examples in docs conflict with current project rules, prefer the current rules below.
 
 Known normalizations:
 
@@ -32,6 +32,13 @@ Known normalizations:
 - docs or examples may still show success payload `code: "OK"`; current rule is numeric HTTP status code
 - docs may still show raw `getenv()` in config examples; business code should use `Env::get()`
 - docs may show `App\...` namespaces in examples; adapt them to the actual project namespace and layout in use
+
+Normalized source-doc updates already synced into this workspace:
+
+- router-related docs now emphasize uppercase app directories and Linux case sensitivity
+- response-related docs now align success payload examples to numeric `code`
+- config and env-related docs now consistently push `Env::get()`-style environment access
+- generator and provider-related docs now better reflect uppercase directories and current namespace conventions
 
 ## Working Scope
 
@@ -712,27 +719,37 @@ If Action validation is non-trivial, pair it with `FormRequest`.
 
 ## Documentation Map
 
-When expanding or fixing Anon features, these VitePress docs are the best starting points:
+All copied source docs now live inside this skill:
 
-- `guide/architecture/router.md`
-- `guide/architecture/request-response.md`
-- `guide/architecture/auth.md`
-- `guide/architecture/form-request.md`
-- `guide/architecture/validator.md`
-- `guide/architecture/api-resource.md`
-- `guide/architecture/server-actions.md`
-- `guide/architecture/http-client.md`
-- `guide/architecture/openapi.md`
-- `guide/architecture/middleware.md`
-- `guide/architecture/container.md`
-- `guide/architecture/service-provider.md`
-- `guide/architecture/session.md`
-- `guide/architecture/storage.md`
-- `guide/architecture/queue.md`
-- `guide/architecture/hook.md`
-- `guide/architecture/event.md`
+- `docs/architecture/*.md`
 
-Treat this skill as the fast path. Read the original docs only when the task needs exact API details not summarized here.
+Read these first:
+
+- `docs/architecture/current-conventions.md`
+- `docs/architecture/deployment-checklist.md`
+
+Use `docs/architecture/current-conventions.md` first when the task touches directory case, response format, env/config, JWT, route style, or app-vs-core decision making.
+Use `docs/architecture/deployment-checklist.md` first when the task is about publishing, online-only failures, autoload, runtime cache, vendor/runtime drift, php-fpm, or opcache.
+
+Then read the matching local subsystem doc when needed, for example:
+
+- `docs/architecture/router.md`
+- `docs/architecture/request-response.md`
+- `docs/architecture/auth.md`
+- `docs/architecture/form-request.md`
+- `docs/architecture/validator.md`
+- `docs/architecture/api-resource.md`
+- `docs/architecture/server-actions.md`
+- `docs/architecture/http-client.md`
+- `docs/architecture/openapi.md`
+- `docs/architecture/middleware.md`
+- `docs/architecture/container.md`
+- `docs/architecture/service-provider.md`
+- `docs/architecture/session.md`
+- `docs/architecture/storage.md`
+- `docs/architecture/queue.md`
+- `docs/architecture/hook.md`
+- `docs/architecture/event.md`
 
 ## App First / Core Boundary
 
