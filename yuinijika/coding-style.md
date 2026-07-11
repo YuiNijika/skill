@@ -11,7 +11,7 @@ Aligned with the [Anon Framework Coding Standards](https://anon.miomoe.cn/guide/
 
 ## Universal Principles
 
-These apply across all languages.
+These apply across all languages, but when contributing to an existing project, **match the project's conventions first** — these rules are the fallback.
 
 ### Formatting
 
