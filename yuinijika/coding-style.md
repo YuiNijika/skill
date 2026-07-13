@@ -54,6 +54,24 @@ User-facing text — page banners, taglines, descriptions — should only descri
 
 Python and Rust use `snake_case` for methods/variables per strong community convention — do not force `camelCase` there.
 
+### Directory-Scoped Naming
+
+When a directory already scopes the content, do not repeat the directory name in the file or class. The directory is the namespace.
+
+```
+// Good — directory provides scope, file name is clean
+Test/AI              → class AI
+components/Button    → export Button
+models/User          → class User
+
+// Bad — redundant prefix
+Test/TestAI          → class TestAI
+components/ButtonComponent → export ButtonComponent
+models/UserModel     → class UserModel
+```
+
+When importing, alias as needed for clarity at the call site: `import { AI as TestAI } from './Test/AI'`.
+
 ### Type Declarations
 
 All languages prefer explicit types:
