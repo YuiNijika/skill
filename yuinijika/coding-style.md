@@ -20,6 +20,18 @@ These apply across all languages, but when contributing to an existing project, 
 - Encoding: **UTF-8 without BOM**
 - One trailing newline at end of file
 
+### Scripting & Automation
+
+For shell tasks and automation scripts, prefer **Python** over PowerShell (`.ps1`). PowerShell has chronic encoding issues and garbage syntax — every terminal command tends to take multiple retries, burning tokens for no reason. Use Python for any script that needs to run reliably on the first try. Avoid running PowerShell commands in the terminal unless they serve a clear, necessary purpose — if Python can do it, use Python.
+
+### After Making Changes
+
+Do **not** run dev/build commands or package manager installs after editing code. The development environment is already set up — these commands waste tokens and are meaningless busywork. Make the code change, verify with linter if needed, and stop.
+
+### Prefer Direct Actions Over Scripts
+
+For routine tasks (file manipulation, search, text processing), do it yourself rather than spawning a script. Running a script for minor work risks introducing errors that then cost more tokens to debug and fix. If the model can read, edit, or search directly — that's always the first choice. Scripts are for bulk automation that genuinely can't be done by hand, not for convenience.
+
 ### Naming Quick Reference
 
 | Element | PHP | C++ | TypeScript | Python | Rust |
