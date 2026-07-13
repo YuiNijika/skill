@@ -38,7 +38,8 @@ User-facing text — page banners, taglines, descriptions — should only descri
 
 ### UI Component Libraries
 
-Never manually create components that a UI library already provides. Use the library's own install/CLI method to pull components (e.g. `npx shadcn-ui add button`). Never edit files inside the component library's directory — treat them as external dependencies.
+- Use the library's CLI to add components, never write them by hand.
+- Never edit files inside the library's directory.
 
 ### Naming Quick Reference
 
