@@ -36,6 +36,10 @@ For routine tasks (file manipulation, search, text processing), do it yourself r
 
 User-facing text — page banners, taglines, descriptions — should only describe what the user sees and experiences. Write for the actual scenario, not for explaining how it was built.
 
+### UI Component Libraries
+
+Never manually create components that a UI library already provides. Use the library's own install/CLI method to pull components (e.g. `npx shadcn-ui add button`). Never edit files inside the component library's directory — treat them as external dependencies.
+
 ### Naming Quick Reference
 
 | Element | PHP | C++ | TypeScript | Python | Rust |
