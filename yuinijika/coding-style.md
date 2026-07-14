@@ -32,6 +32,8 @@ Do **not** run dev/build commands or package manager installs after editing code
 
 For routine tasks (file manipulation, search, text processing), do it yourself rather than spawning a script. Running a script for minor work risks introducing errors that then cost more tokens to debug and fix. If the model can read, edit, or search directly — that's always the first choice. Scripts are for bulk automation that genuinely can't be done by hand, not for convenience.
 
+Read files directly — never use terminal commands (`cat`, `type`, `Get-Content`) to view file contents.
+
 ### UI Text & Page Content
 
 User-facing text — page banners, taglines, descriptions — should only describe what the user sees and experiences. Write for the actual scenario, not for explaining how it was built.
