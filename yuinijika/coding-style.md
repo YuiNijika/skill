@@ -365,3 +365,12 @@ pub fn load_config(path: &Path) -> Result<Config, ConfigError> {
 - Error handling: `thiserror` for libraries, `anyhow` for applications
 - `unwrap()` / `expect()` only where failure is logically impossible, with a comment explaining why
 - Module file naming: `snake_case.rs`
+
+### Component & Modular Development
+
+- Structure code into self‑contained components or modules. Each component lives in its own directory and follows the Directory‑Scoped Naming rule.
+- Export only the public API of a component; hide internal implementation details.
+- Favor composition over inheritance: combine small reusable components rather than building deep class hierarchies.
+- Dependencies between components should be explicit, injected via constructors or factories. Avoid hidden globals.
+- Keep each component focused on a single responsibility; avoid mixing UI, business logic, and data access in one file.
+- When a component is no longer needed, delete its directory entirely to avoid leftover empty folders.
