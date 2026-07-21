@@ -5,47 +5,70 @@ description: "YuiNijika's coding conventions across PHP, C++, TypeScript, Python
 
 # Coding Style — YuiNijika
 
-Aligned with the [Anon Framework Coding Standards](https://anon.miomoe.cn/guide/coding-standards.html) and real-world development experience. Language-agnostic core principles, with per-language conventions following each ecosystem's community norms.
+Aligned with the [Anon Framework Coding Standards](https://anon.miomoe.cn/guide/coding-standards.html).
+
+These are hard constraints. Soft "prefer if convenient" reading is forbidden.
+If the current project already has conventions, **project conventions win first**; use this file as fallback.
 
 ---
 
-## Universal Principles
+## Hard Operational Rules
 
-These apply across all languages, but when contributing to an existing project, **match the project's conventions first** — these rules are the fallback.
+### 1. Terminal / Scripts
 
-### Formatting
+- MUST use **Python** for automation scripts. MUST NOT write PowerShell (`.ps1`) when Python can do it.
+- MUST NOT run pointless PowerShell in the terminal. PowerShell encoding/syntax burns tokens via retries.
+- MUST NOT spawn scripts for tiny work the model can do directly (read/edit/search/rename).
+- Scripts are only for real bulk automation that cannot be done cleanly by direct tools.
 
-- Indentation: **4 spaces**, tabs forbidden
-- Line endings: **LF (Unix)**, CRLF forbidden
-- Encoding: **UTF-8 without BOM**
-- One trailing newline at end of file
+### 2. After Code Changes
 
-### Scripting & Automation
+- MUST NOT run dev / build / package-manager install after edits unless the user explicitly asks.
+- Environment is already running. Post-edit busywork is forbidden.
+- Flow: edit → lint if needed → stop.
 
-For shell tasks and automation scripts, prefer **Python** over PowerShell (`.ps1`). PowerShell has chronic encoding issues and garbage syntax — every terminal command tends to take multiple retries, burning tokens for no reason. Use Python for any script that needs to run reliably on the first try. Avoid running PowerShell commands in the terminal unless they serve a clear, necessary purpose — if Python can do it, use Python.
+### 3. File Access
 
-### After Making Changes
+- MUST read/edit files with file tools.
+- MUST NOT use terminal to read/write files (`cat` `type` `Get-Content` `sed` `awk` `echo >` and equivalents).
 
-Do **not** run dev/build commands or package manager installs after editing code. The development environment is already set up — these commands waste tokens and are meaningless busywork. Make the code change, verify with linter if needed, and stop.
+### 4. Clean Deletion
 
-### Prefer Direct Actions Over Scripts
+- If a directory becomes empty after deletes, MUST delete the directory too.
+- No empty folders. No leftover junk.
 
-For routine tasks (file manipulation, search, text processing), do it yourself rather than spawning a script. Running a script for minor work risks introducing errors that then cost more tokens to debug and fix. If the model can read, edit, or search directly — that's always the first choice. Scripts are for bulk automation that genuinely can't be done by hand, not for convenience.
+### 5. UI Text
 
-Read and edit files directly — never use terminal commands (`cat`, `type`, `Get-Content`, `sed`, `awk`, `echo >`) to read or modify files.
+- User-facing copy MUST describe only what users see and experience in the real scenario.
+- MUST NOT mention tech stack in page banners/taglines/descriptions.
+- MUST NOT describe what was changed / how it was built.
 
-When removing all files from a directory, remove the directory too. No empty directories left behind. Keep it clean.
+### 6. UI Component Libraries
 
-### UI Text & Page Content
+- Missing library components: MUST install via the library CLI / official install method.
+- MUST NOT hand-write library components that the library already provides.
+- MUST NEVER edit files inside the library component directory.
 
-User-facing text — page banners, taglines, descriptions — should only describe what the user sees and experiences. Write for the actual scenario, not for explaining how it was built.
+### 7. Component & Modular Development
 
-### UI Component Libraries
+- MUST structure code as self-contained components/modules.
+- One component = one directory, following Directory-Scoped Naming.
+- Export only public API; hide internals.
+- Prefer composition over deep inheritance.
+- Dependencies MUST be explicit (constructor/factory injection). No hidden globals.
+- One responsibility per component. Do not mix UI + business + data access in one file.
+- Removing a component means removing its whole directory.
 
-- Use the library's CLI to add components, never write them by hand.
-- Never edit files inside the library's directory.
+---
 
-### Naming Quick Reference
+## Formatting
+
+- Indentation: **4 spaces**. Tabs forbidden.
+- Line endings: **LF**. CRLF forbidden.
+- Encoding: **UTF-8 without BOM**.
+- One trailing newline at EOF.
+
+## Naming Quick Reference
 
 | Element | PHP | C++ | TypeScript | Python | Rust |
 |---|---|---|---|---|---|
@@ -56,240 +79,144 @@ User-facing text — page banners, taglines, descriptions — should only descri
 | File name | `PascalCase` | `snake_case` | `kebab-case` | `snake_case` | `snake_case` |
 | Boolean prefix | `is`/`has`/`should` | `is_`/`has_`/`should_` | `is`/`has`/`should` | `is_`/`has_`/`should_` | `is_`/`has_`/`should_` |
 
-Python and Rust use `snake_case` for methods/variables per strong community convention — do not force `camelCase` there.
+Python/Rust method & variable naming stays `snake_case`. Do not force camelCase there.
 
-### Directory-Scoped Naming
+## Directory-Scoped Naming
 
-When a directory already scopes the content, do not repeat the directory name in the file or class. The directory is the namespace.
+If a directory already scopes the content, MUST NOT repeat the directory name in file/class names.
 
 ```
-// Good — directory provides scope, file name is clean
+// Good
 Test/AI              → class AI
 components/Button    → export Button
 models/User          → class User
 
-// Bad — redundant prefix
+// Bad
 Test/TestAI          → class TestAI
 components/ButtonComponent → export ButtonComponent
 models/UserModel     → class UserModel
 ```
 
-When importing, alias as needed for clarity at the call site: `import { AI as TestAI } from './Test/AI'`.
+Import-site aliasing is fine: `import { AI as TestAI } from './Test/AI'`.
 
-### Type Declarations
+## Type Declarations
 
-All languages prefer explicit types:
+Explicit types by default:
 
-- **PHP**: properties, parameters, and return types must be declared. `strict_types=1`. Union types `int|string`, nullable `?string`.
-- **C++**: prefer `auto` with explicit initialization. Parameters and return values use concrete types, not `void*`.
-- **TypeScript**: `strict: true`. Ban `any` unless there is a documented reason.
-- **Python**: type hints (PEP 484) on all public functions. Run mypy.
-- **Rust**: type-enforced by the compiler. Use `Option<T>` and `Result<T, E>`, not raw `unwrap()`.
+- **PHP**: typed props/params/returns. `strict_types=1`.
+- **C++**: concrete types for params/returns; `auto` only with clear init.
+- **TypeScript**: `strict: true`. `any` forbidden unless documented reason.
+- **Python**: type hints on all public functions.
+- **Rust**: `Option<T>` / `Result<T, E>`; no casual `unwrap()`.
 
-### Early Return
+## Early Return
 
-Universal. Handle edge cases and errors first, keep the main logic at the outermost indentation level.
+Handle errors/edges first. Keep main path shallow.
 
 ```php
 // Good
 if (!$user) {
     throw new Exception('User not found');
 }
-// Main logic...
+// main logic
 
 // Bad
 if ($user) {
     if ($user->isActive) {
-        // Main logic...
+        // main logic
     }
 }
 ```
 
-### No Magic Numbers
+## No Magic Numbers
 
-Named constants or enums only:
+Named constants/enums only.
 
-```php
-class User { public const STATUS_BANNED = 2; }
-```
+## Single Responsibility
 
-```cpp
-enum class UserStatus : uint8_t { Banned = 2 };
-```
-
-```typescript
-enum UserStatus { BANNED = 2 }
-```
-
-```python
-class UserStatus(IntEnum): BANNED = 2
-```
-
-```rust
-enum UserStatus { Banned = 2 }
-```
-
-### Single Responsibility (SRP)
-
-One function does one thing. If it is getting long, split it into private/protected helpers. Applies to all languages equally.
+One function does one thing. Long function → split helpers.
 
 ---
 
 ## Comment Style
 
-Core philosophy: **code documents "what", comments document "why"**.
+**Code = what. Comments = why.**
 
-### Do Not Write These
+### Forbidden comments
 
 ```php
 // If status is 1
-if ($status === 1) { ... }
-
 // Increment counter
-$count++;
-
 // Loop through items
-for (...) { ... }
-
 // Return result
-return $result;
 ```
 
-The code already says this. These comments are noise.
-
-### Write These Instead
+### Required style of comments
 
 ```php
 // Production may disable putenv(), fall back to $_ENV
-if (function_exists('getenv')) { ... }
-
 // Onion-model exception passthrough — must throw to outer Handler
-catch (\Throwable $e) { throw $e; }
-
 // Prevent CPU-burning infinite loop, sleep 3s on failure
-sleep(3);
 ```
 
-Same principle in every language:
-
-```cpp
-// /proc/self/exe is more reliable than argv[0] on Linux
-auto path = std::filesystem::read_symlink("/proc/self/exe");
-```
-
-```typescript
-// Chrome's 5-minute WebSocket idle timeout is undocumented, discovered empirically
-const HEARTBEAT_INTERVAL = 4.5 * 60 * 1000;
-```
-
-```python
-# requests timeout is (connect, read) tuple; single value applies to both
-response = requests.get(url, timeout=(5, 30))
-```
-
-### DocBlock / Documentation Comments
-
-Write these only when:
-- The method has complex business logic or edge cases
-- Parameters are `mixed` / `array` / `object` and need structural explanation
-- The method throws specific exceptions
-- It is a public API / library interface
-
-```php
-/**
- * Pop and execute a job from the queue (blocking mode).
- *
- * @throws Exception When Redis extension is not loaded
- */
-public function pop(?string $queue = null, int $timeout = 3): ?Job { ... }
-```
-
-Python uses docstrings, TypeScript uses JSDoc, Rust uses `///`.
+Doc comments only for complex logic, public API contracts, special exceptions, or non-obvious structures.
 
 ---
 
 ## PHP & Anon Framework
 
-### Framework Conventions
+- Every new file: `declare(strict_types=1);`
+- Pure PHP: omit closing `?>`
+- Directory-semantic names: `Auth/Manager.php` not `Auth/AuthManager.php`
+- Views: `kebab-case.php`
+- PSR-4 uppercase dirs: `app/Controller`, `app/Service`, `app/Route`
 
-- Use `declare(strict_types=1);` at the top of every new file
-- Pure PHP files omit the closing `?>`
-- Directory-semantic naming: `Auth/Manager.php`, not `Auth/AuthManager.php`
-- View / template files: `kebab-case.php` (e.g. `error-500.php`)
-- PSR-4 uppercase directories for Linux compatibility: `app/Controller`, `app/Service`, `app/Route`
-
-### Env & Config
+Env:
 
 ```php
 // Forbidden
 $val = getenv('KEY');
 
-// Correct
+// Required
 $val = trim((string) Env::get('KEY', ''));
 ```
 
-`JWT_SECRET` must live in `.env` only — never in config files.
+`JWT_SECRET` only in `.env`, never config files.
 
-### Response Contract
+Response contract:
 
 ```json
-{ "success": true,  "code": 200, "message": "OK",      "data": {} }
-{ "success": false, "code": 400, "message": "...",     "error_code": "BAD_REQUEST" }
+{ "success": true,  "code": 200, "message": "OK",  "data": {} }
+{ "success": false, "code": 400, "message": "...", "error_code": "BAD_REQUEST" }
 ```
 
-`code` is **always** a numeric HTTP status code. **Never** a string.
+`code` MUST be numeric HTTP status. NEVER string.
 
-### Controller / Service Split
+Controller thin: params → Service → Response.
+Service owns business + IO.
 
-Controller is thin: receive params → call Service → return Response.
-Service owns business logic and third-party IO.
-
-### Production Checklist
+Production checklist (only when user asks deploy/verify):
 
 - `composer dump-autoload`
-- Clear config / route cache
-- Restart php-fpm / reload opcache
-- Verify Linux directory casing matches namespace
-- Verify cookie domain / secure / httponly / samesite
+- clear config/route cache
+- restart php-fpm / reload opcache
+- verify Linux casing
+- verify cookie flags
 
 ---
 
 ## C++
 
-### Style
-
-Follow the project's existing style. Prefer C++17/20 features:
-
-```cpp
-// Prefer structured bindings
-auto [name, age] = getPerson();
-
-// Prefer range-for
-for (const auto& item : items) { ... }
-
-// Prefer smart pointers
-auto ptr = std::make_unique<Foo>();
-
-// Prefer enum class
-enum class State : uint8_t { Idle, Running, Done };
-```
-
-### Headers
-
-- Use `#pragma once`
-- Include order: own header → project headers → third-party → standard library
+- Follow existing project style; prefer C++17/20
+- `#pragma once`
+- Include order: own → project → third-party → std
 - No `using namespace std;` in headers
-
-### Error Handling
-
-- Without exceptions: use `std::optional` / `std::expected` (C++23) or `std::variant`
-- With exceptions: throw by value, catch by const reference
+- Prefer smart pointers / `enum class` / range-for / structured bindings
+- Errors: `optional` / `expected` / throw-by-value catch-by-const-ref
 
 ---
 
 ## TypeScript
-
-### Configuration
 
 ```json
 {
@@ -301,76 +228,26 @@ enum class State : uint8_t { Idle, Running, Done };
 }
 ```
 
-### Style
-
-- Prefer `interface` for object shapes, `type` for unions / intersections
-- Functions with 3+ parameters: use object parameters with destructuring
-- Async: `Promise<T>` + `async/await`, never mix with callbacks
-- File naming: `kebab-case.ts` for modules, `PascalCase.tsx` for React components
-
-```typescript
-interface FetchOptions {
-  url: string;
-  method?: 'GET' | 'POST';
-  timeout?: number;  // ms, default 5000
-}
-
-async function fetchData({ url, method = 'GET', timeout = 5000 }: FetchOptions): Promise<Data> { ... }
-```
+- `interface` for object shapes; `type` for unions/intersections
+- 3+ params → object param + destructure
+- async: `Promise<T>` + `async/await` only
+- modules: `kebab-case.ts`; React components: `PascalCase.tsx`
 
 ---
 
 ## Python
 
-### Style
-
-PEP 8 compliant. Format with Ruff or Black.
-
-```python
-def fetch_user(user_id: int, *, include_deleted: bool = False) -> User | None:
-    """Fetch a user by ID, excluding deleted by default.
-
-    Args:
-        user_id: User ID
-        include_deleted: Whether to include deleted users
-
-    Returns:
-        User object or None
-    """
-    ...
-```
-
-- Type hints: all public functions must have them
-- Strings: prefer f-strings
-- Paths: prefer `pathlib.Path` over `os.path`
-- Dependencies: `requirements.txt` or `pyproject.toml`
+- PEP 8; format with Ruff or Black
+- Public functions MUST have type hints
+- Prefer f-strings and `pathlib.Path`
+- Dependencies in `requirements.txt` or `pyproject.toml`
 
 ---
 
 ## Rust
 
-### Style
-
-`rustfmt` defaults, `clippy` zero warnings.
-
-```rust
-/// Load configuration from file, returning defaults on failure.
-pub fn load_config(path: &Path) -> Result<Config, ConfigError> {
-    let content = std::fs::read_to_string(path)?;
-    toml::from_str(&content).map_err(ConfigError::from)
-}
-```
-
-- Prefer `&str` / `&[T]` parameters, avoid unnecessary `.clone()`
-- Error handling: `thiserror` for libraries, `anyhow` for applications
-- `unwrap()` / `expect()` only where failure is logically impossible, with a comment explaining why
-- Module file naming: `snake_case.rs`
-
-### Component & Modular Development
-
-- Structure code into self‑contained components or modules. Each component lives in its own directory and follows the Directory‑Scoped Naming rule.
-- Export only the public API of a component; hide internal implementation details.
-- Favor composition over inheritance: combine small reusable components rather than building deep class hierarchies.
-- Dependencies between components should be explicit, injected via constructors or factories. Avoid hidden globals.
-- Keep each component focused on a single responsibility; avoid mixing UI, business logic, and data access in one file.
-- When a component is no longer needed, delete its directory entirely to avoid leftover empty folders.
+- `rustfmt` defaults; `clippy` clean
+- Prefer `&str` / `&[T]`; avoid unnecessary clone
+- Libraries: `thiserror`; apps: `anyhow`
+- `unwrap`/`expect` only when failure is impossible, with why-comment
+- Modules: `snake_case.rs`
